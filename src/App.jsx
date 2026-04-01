@@ -31,6 +31,19 @@ function App() {
     return () => unsubscribe();
   }, [searchId]);
 
+  // Dynamic status messages based on the timeline step
+  const getStatusMessage = (step) => {
+    switch(step) {
+      case -1: return "⚠️ Delivery Exception: Package reported missing.";
+      case 0: return "Awaiting dispatch from origin warehouse.";
+      case 1: return "Package loading. Driver will leave the facility very .";
+      case 2: return "In transit. Heading towards the destination.";
+      case 3: return "Driver is arriving at the drop-off location.";
+      case 4: return "Package delivered successfully.";
+      default: return "Fetching latest location data...";
+    }
+  };
+
   return (
     // SaaS Layout Wrapper: Light background, system fonts
     <div className="mobile-col" style={{ display: 'flex', minHeight: '100vh', width: '100%', backgroundColor: '#F4F6F8', fontFamily: 'system-ui, -apple-system, sans-serif', color: '#1F2937' }}>
@@ -88,27 +101,116 @@ function App() {
             // Soft white card for results
             <div style={{ backgroundColor: '#FFFFFF', padding: '32px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)', border: '1px solid #E5E7EB' }}>
               
-              <div className="mobile-order-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'centre', borderBottom: '1px solid #F3F4F6', paddingBottom: '24px', marginBottom: '24px' }}>
+              <div className="mobile-order-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F3F4F6', paddingBottom: '24px', marginBottom: '24px' }}>
                 <div>
                   <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', color: '#1F2937' }}>Order ID: {orderData.id}</h3>
                   <p style={{ margin: 0, color: '#6B7280', fontSize: '14px' }}>Customer: {orderData.customerName}</p>
+                  <p style={{ margin: 0, color: '#F58220', fontSize: '13px', fontWeight: '500' }}>
+                    {getStatusMessage(orderData.statusStep)}
+                  </p>
                 </div>
-                <div style={{ backgroundColor: '#ECFDF5', color: '#10B981', padding: '6px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '8px', height: '8px', backgroundColor: '#10B981', borderRadius: '50%' }}></div>
-                  Live Tracking Active
-                </div>
+                
+                {/* NEW: Dynamic Tracking Badge replaces the old static one */}
+                {orderData.statusStep === -1 ? (
+                  <div style={{ backgroundColor: '#FEF2F2', color: '#EF4444', padding: '6px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '8px', height: '8px', backgroundColor: '#EF4444', borderRadius: '50%' }}></div>
+                    Tracking Suspended
+                  </div>
+                ) : (
+                  <div style={{ backgroundColor: '#ECFDF5', color: '#10B981', padding: '6px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '8px', height: '8px', backgroundColor: '#10B981', borderRadius: '50%' }}></div>
+                    Live Tracking Active
+                  </div>
+                )}
+                {/* END Dynamic Tracking Badge */}  
               </div>
 
               <ProgressTimeline currentStep={orderData.statusStep} />
               
-              <LiveMap 
-                lat={orderData.lat} 
-                lng={orderData.lng} 
-                startLat={orderData.startLat}
-                startLng={orderData.startLng}
-                destLat={orderData.destLat}
-                destLng={orderData.destLng}
-              />
+              {/* Conditionally Render the Map or Status Screens */}
+              {orderData.statusStep === 0 ? (
+                
+                // STEP 0: AWAITING DISPATCH UI
+                <div style={{ backgroundColor: '#F9FAFB', padding: '48px 24px', borderRadius: '12px', textAlign: 'center', border: '1px dashed #D1D5DB', marginTop: '24px' }}>
+                  <div style={{ width: '48px', height: '48px', backgroundColor: '#E5E7EB', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+                    <span style={{ fontSize: '24px' }}>📦</span>
+                  </div>
+                  <h4 style={{ color: '#374151', margin: '0 0 8px 0', fontSize: '16px' }}>Live Map Tracking Not Yet Active</h4>
+                  <p style={{ color: '#6B7280', margin: 0, fontSize: '14px' }}>
+                    The routing map will automatically appear here as soon as your package leaves the warehouse.
+                  </p>
+                </div>
+
+              ) : orderData.statusStep === 4 ? (
+
+                // STEP 4: DELIVERED SUMMARY UI
+                <div style={{ backgroundColor: '#F0FDF4', padding: '32px', borderRadius: '12px', border: '1px solid #BBF7D0', marginTop: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', borderBottom: '1px solid #DCFCE7', paddingBottom: '16px' }}>
+                    <div style={{ width: '48px', height: '48px', backgroundColor: '#22C55E', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px' }}>
+                      ✓
+                    </div>
+                    <div>
+                      <h4 style={{ color: '#166534', margin: '0 0 4px 0', fontSize: '18px' }}>Delivery Completed</h4>
+                      <p style={{ color: '#15803D', margin: 0, fontSize: '14px' }}>Dropped off safely at the destination.</p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '24px' }} className="mobile-col">
+                    {/* Delivery Stats */}
+                    <div style={{ flex: 1 }}>
+                      <p style={{ margin: '0 0 8px 0', fontSize: '12px', color: '#166534', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.5px' }}>Delivery Details</p>
+                      <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#1F2937' }}><strong>Arrival Time:</strong> {orderData.lastUpdate}</p>
+                      <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#1F2937' }}><strong>Transit Duration:</strong> 3h 45m</p>
+                      <p style={{ margin: 0, fontSize: '14px', color: '#1F2937' }}><strong>Proof of Delivery:</strong> Signed & Confirmed</p>
+                    </div>
+                    
+                    {/* Driver Review Box */}
+                    <div style={{ flex: 1, backgroundColor: '#FFFFFF', padding: '16px', borderRadius: '8px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                      <p style={{ margin: '0 0 8px 0', fontSize: '12px', color: '#6B7280', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.5px' }}>Driver Info</p>
+                      <p style={{ margin: '0 0 4px 0', fontSize: '15px', color: '#1F2937', fontWeight: '600' }}>Kamal Perera</p>
+                      <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6B7280' }}>Vehicle: WP-9791 (Light Truck)</p>
+                      <div style={{ color: '#F59E0B', fontSize: '20px', letterSpacing: '2px', lineHeight: '1' }}>
+                        ★★★★★
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                ) : orderData.statusStep === -1 ? (
+
+                // NEW: STEP -1 (EXCEPTION / FAILED DELIVERY UI)
+                <div style={{ backgroundColor: '#FEF2F2', padding: '32px', borderRadius: '12px', border: '1px solid #FECACA', marginTop: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', borderBottom: '1px solid #FEE2E2', paddingBottom: '16px' }}>
+                    <div style={{ width: '48px', height: '48px', backgroundColor: '#EF4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px', fontWeight: 'bold' }}>
+                      !
+                    </div>
+                    <div>
+                      <h4 style={{ color: '#991B1B', margin: '0 0 4px 0', fontSize: '18px' }}>Delivery Exception</h4>
+                      <p style={{ color: '#B91C1C', margin: 0, fontSize: '14px' }}>Customer reported package not received.</p>
+                    </div>
+                  </div>
+                  <p style={{ color: '#7F1D1D', fontSize: '14px', margin: '0 0 20px 0', lineHeight: '1.5' }}>
+                    Our dispatch team has been notified of the discrepancy. We are currently contacting the driver (Vehicle WP-9791) to verify the GPS drop-off coordinates and resolve this issue immediately.
+                  </p>
+                  <button style={{ backgroundColor: '#EF4444', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '14px' }} onClick={() => alert("Redirecting to Customer Support portal...")}>
+                    Contact Support
+                  </button>
+                </div>
+
+              ) : (
+
+                // STEPS 1, 2, 3: LIVE MAP UI
+                <LiveMap 
+                  lat={orderData.lat} 
+                  lng={orderData.lng} 
+                  startLat={orderData.startLat} 
+                  startLng={orderData.startLng} 
+                  destLat={orderData.destLat} 
+                  destLng={orderData.destLng} 
+                />
+
+              )}
+
               {/* Frontend-Only CRUD UI for Delivery Notes */}
               <div style={{ marginTop: '24px', padding: '24px', backgroundColor: '#F9FAFB', borderRadius: '12px', border: '1px dashed #D1D5DB' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>

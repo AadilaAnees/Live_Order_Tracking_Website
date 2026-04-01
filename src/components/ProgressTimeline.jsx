@@ -1,42 +1,61 @@
 import { Check } from 'lucide-react';
 
 export default function ProgressTimeline({ currentStep }) {
-  // These are the standard logical steps for your logistics system
   const steps = ['Order Placed', 'Dispatched', 'In Transit', 'Arriving', 'Delivered'];
 
   return (
-    <div style={{ maxWidth: '800px', margin: '40px auto', fontFamily: 'sans-serif' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+    <div style={{ padding: '10px 0 30px 0', width: '100%' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'relative' }}>
         
-        {/* Background Line */}
-        <div style={{ position: 'absolute', top: '20px', left: '10%', right: '10%', height: '4px', backgroundColor: '#e0e0e0', zIndex: 0 }}></div>
+        {/* Background Gray Line */}
+        <div className="mobile-timeline-line" style={{ position: 'absolute', top: '18px', left: '10%', right: '10%', height: '4px', backgroundColor: '#F3F4F6', zIndex: 0, borderRadius: '2px' }}></div>
         
-        {/* Active Line (fills up based on progress) */}
-        <div style={{ 
-          position: 'absolute', top: '20px', left: '10%', 
+        {/* Active Green Line */}
+        <div className="mobile-timeline-line" style={{ 
+          position: 'absolute', top: '18px', left: '10%', 
           width: `${(currentStep / (steps.length - 1)) * 80}%`, 
-          height: '4px', backgroundColor: '#0056b3', zIndex: 1, transition: 'width 0.4s ease' 
+          height: '4px', backgroundColor: '#10B981', zIndex: 1, transition: 'width 0.5s ease', borderRadius: '2px'
         }}></div>
 
-        {/* The Timeline Dots */}
+        {/* Timeline Dots */}
         {steps.map((step, index) => {
-          const isCompleted = index <= currentStep;
+          const isCompleted = index < currentStep;
+          const isActive = index === currentStep;
           
+          let bgColor = '#FFFFFF';
+          let borderColor = '#E5E7EB'; 
+          let iconColor = '#9CA3AF';
+
+          if (isCompleted) {
+            bgColor = '#10B981'; 
+            borderColor = '#10B981';
+            iconColor = '#FFFFFF';
+          } else if (isActive) {
+            bgColor = '#FFFFFF';
+            borderColor = '#F58220'; 
+            iconColor = '#F58220';
+          }
+
           return (
             <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2, flex: 1 }}>
-              <div style={{
-                width: '40px', height: '40px', borderRadius: '50%',
-                backgroundColor: isCompleted ? '#0056b3' : '#f8f9fa',
-                border: `3px solid ${isCompleted ? '#0056b3' : '#e0e0e0'}`,
-                color: isCompleted ? 'white' : '#999',
+              <div className="mobile-timeline-circle" style={{
+                width: '36px', height: '36px', borderRadius: '50%',
+                backgroundColor: bgColor,
+                border: `3px solid ${borderColor}`,
+                color: iconColor,
                 display: 'flex', justifyContent: 'center', alignItems: 'center',
-                fontWeight: 'bold', transition: 'all 0.4s ease'
+                fontWeight: '600', fontSize: '14px', transition: 'all 0.3s ease',
+                boxShadow: isActive ? '0 0 0 4px rgba(245, 130, 32, 0.1)' : 'none'
               }}>
-                {isCompleted ? <Check size={20} /> : index + 1}
+                {isCompleted ? <Check size={16} /> : index + 1}
               </div>
-              <p style={{ 
-                marginTop: '12px', fontSize: '14px', fontWeight: isCompleted ? 'bold' : 'normal',
-                color: isCompleted ? '#333' : '#999', textAlign: 'center' 
+              <p className="mobile-timeline-text" style={{ 
+                marginTop: '12px', fontSize: '13px', 
+                fontWeight: isActive || isCompleted ? '600' : '500',
+                color: isActive ? '#F58220' : isCompleted ? '#1F2937' : '#9CA3AF', 
+                textAlign: 'center',
+                maxWidth: '60px', // Forces words to wrap cleanly
+                wordWrap: 'break-word'
               }}>
                 {step}
               </p>

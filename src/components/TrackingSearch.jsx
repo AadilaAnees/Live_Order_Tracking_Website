@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Package } from 'lucide-react';
 
 export default function TrackingSearch({ onSearch }) {
   const [orderId, setOrderId] = useState('');
@@ -7,47 +7,68 @@ export default function TrackingSearch({ onSearch }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (orderId.trim() !== '') {
-      onSearch(orderId); // Passes the ID up to the main page to trigger the Firebase fetch later
+      onSearch(orderId);
     }
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: '40px auto', textAlign: 'center', fontFamily: 'sans-serif' }}>
-      <h2 style={{ color: '#333', marginBottom: '10px' }}>Track Your SmartLogix Delivery</h2>
-      <p style={{ color: '#666', marginBottom: '20px' }}>Enter your unique Order ID to see live status updates.</p>
+    <div style={{ 
+      backgroundColor: '#FFFFFF', 
+      padding: '32px', 
+      borderRadius: '16px', 
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)', // Very soft elevation
+      marginBottom: '24px',
+      border: '1px solid #E5E7EB' // Light neutral gray
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+        <div style={{ backgroundColor: '#FFF7ED', padding: '8px', borderRadius: '8px', color: '#F58220' }}>
+          <Package size={24} />
+        </div>
+        <h2 style={{ margin: 0, color: '#1F2937', fontSize: '20px', fontWeight: '600' }}>Track Cargo</h2>
+      </div>
+      <p className="mobile-reset-margin" style={{ color: '#6B7280', fontSize: '14px', marginBottom: '24px', marginLeft: '48px' }}>
+        Enter your tracking ID to view live location and status.
+      </p>
       
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+      <form className="mobile-col mobile-reset-margin" onSubmit={handleSubmit} style={{ display: 'flex', gap: '16px', marginLeft: '48px' }}>
         <input
           type="text"
-          placeholder="e.g., SLX-8492-77"
+          placeholder="e.g., SLX-849"
           value={orderId}
           onChange={(e) => setOrderId(e.target.value)}
           style={{
-            padding: '12px 20px',
-            fontSize: '16px',
-            border: '2px solid #ddd',
-            borderRadius: '8px',
-            width: '70%',
-            outline: 'none'
+            flex: 1,
+            padding: '12px 16px',
+            fontSize: '15px',
+            backgroundColor: '#F9FAFB', // Light gray input
+            border: '1px solid #E5E7EB',
+            borderRadius: '12px',
+            color: '#1F2937',
+            outline: 'none',
+            transition: 'border-color 0.2s'
           }}
+          onFocus={(e) => e.target.style.borderColor = '#F58220'}
+          onBlur={(e) => e.target.style.borderColor = '#E5E7EB'}
         />
         <button 
           type="submit"
           style={{
             padding: '12px 24px',
-            backgroundColor: '#0056b3',
+            backgroundColor: '#F58220', // SmartLogix Orange
             color: 'white',
             border: 'none',
-            borderRadius: '8px',
-            fontSize: '16px',
+            borderRadius: '12px',
+            fontSize: '15px',
+            fontWeight: '600',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
+            boxShadow: '0 2px 10px rgba(245, 130, 32, 0.2)'
           }}
         >
-          <Search size={20} />
-          Track
+          <Search size={18} />
+          Track Order
         </button>
       </form>
     </div>

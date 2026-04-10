@@ -17,11 +17,11 @@ function App() {
 
   useEffect(() => {
     if (!searchId) return;
-    const orderRef = ref(database, 'orders/' + searchId);
-    const unsubscribe = onValue(orderRef, (snapshot) => {
+    const orderRef = ref(database, 'orders/' + searchId);   //tells Firebase exactly which node to look at in your NoSQL JSON tree
+    const unsubscribe = onValue(orderRef, (snapshot) => {   //onValue - opening an active WebSocket connection
       const data = snapshot.val();
       if (data) {
-        setOrderData({ id: searchId, ...data });
+        setOrderData({ id: searchId, ...data });   //setOrderData() - updating the React state.
         setError('');
       } else {
         setOrderData(null);
@@ -187,6 +187,7 @@ function App() {
                     <div>
                       <h4 style={{ color: '#991B1B', margin: '0 0 4px 0', fontSize: '18px' }}>Delivery Exception</h4>
                       <p style={{ color: '#B91C1C', margin: 0, fontSize: '14px' }}>Customer reported package not received.</p>
+                      <p style={{ color: '#991B1B', margin: '8px 0 0 0', fontSize: '13px', fontWeight: '500' }}> System Log: {orderData.lastUpdate}</p>
                     </div>
                   </div>
                   <p style={{ color: '#7F1D1D', fontSize: '14px', margin: '0 0 20px 0', lineHeight: '1.5' }}>

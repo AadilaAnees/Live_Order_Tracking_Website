@@ -19,7 +19,7 @@ export default function TrackingSearch({ onSearch }) {
     // 2. Strict Format Validation (e.g., must start with SLX-)
     const trackingRegex = /^SLX-\d{3,5}$/i; // Matches SLX-123 to SLX-12345
     if (!trackingRegex.test(trimmedId)) {
-      setValidationError('Invalid format. Tracking ID must be like SLX-123.');
+      setValidationError('Invalid format. Tracking ID must be like SLX-123(3-5 digits).');
       return;
     }
 
